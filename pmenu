@@ -1,0 +1,19 @@
+#!/bin/sh
+# developed by acidvegas (https://acid.vegas/pmenu)
+args='-fn "Misc Ohsnap.Icons:style=Regular:size=11" -nb "#000000" -nf "#FFFFFF" -sb "#000000" -sf "#00D787"'
+cwd=$HOME/.password-store
+while :
+do
+	cmd=$((echo ".." && ls -p $cwd) | dmenu -l 10 -m 0 -fn "Misc Ohsnap.Icons:style=Regular:size=11" -nb "#000000" -nf "#FFFFFF" -sb "#000000" -sf "#00D787" "$@")
+	if [ -z $cmd ]; then
+		break
+	elif [ $cmd = '..' ] && [ ! $cwd = $HOME/.password-store ]; then
+		cwd=$(dirname $cwd)
+	elif [ -d $cwd/$cmd ]; then
+		cwd=$cwd/$cmd
+	elif [ -f $cwd/$cmd ]; then
+		entry=$(echo $cwd$cmd | cut -d'/' -f5- | cut -f1 -d'.')
+		export PINENTRY_USER_DATA="dmenu" | pass $entry | dmenu -l 10 -m 0 -fn "Misc Ohsnap.Icons:style=Regular:size=11" -nb "#000000" -nf "#FFFFFF" -sb "#000000" -sf "#00D787" "$@" | xclip -selection clipboard
+		break
+	fi
+done
